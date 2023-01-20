@@ -1,3 +1,6 @@
 [submodule "libs/td"]
 	path = libs/td
 	url = https://github.com/tdlib/td.git
+[submodule "libs/grpc"]
+	path = libs/grpc
+	url = https://github.com/grpc/grpc.git
