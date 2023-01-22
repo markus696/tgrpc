@@ -1,10 +1,12 @@
 cmake_minimum_required(VERSION 3.19.6)
 project(tgrpc)
 
-set(COMPILE_OPTIONS -Wall -Wno-unused-variable -gdwarf-3)
-set(COMPILE_OPTIONS "--std=gnu++2b;${COMPILE_OPTIONS}")
-set(LINK_OPTIONS "$<IF:$<CONFIG:Debug>,-g,-s>")
-set(LINK_OPTIONS "${LINK_OPTIONS};-static-libstdc++;-static-libgcc")
+set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY      "${CMAKE_CURRENT_SOURCE_DIR}/bin")
 
 add_subdirectory(libs)
+add_subdirectory(rpc_model)
 add_subdirectory(app)

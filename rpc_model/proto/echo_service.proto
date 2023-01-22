@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package rpc_model.services;
+
+// The greeting service definition.
+service Echo {
+  // Sends a greeting
+  rpc DoEcho (EchoRequest) returns (EchoReply) {}
+}
+
+// The request message containing the user's name.
+message EchoRequest {
+  string message = 1;
+}
+
+// The response message containing the greetings
+message EchoReply {
+  string message = 1;
+}
