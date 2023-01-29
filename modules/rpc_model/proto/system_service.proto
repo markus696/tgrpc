@@ -1,19 +1,19 @@
 syntax = "proto3";
 
-package rpc_model.services;
+package rpc_model.system;
 
 // The greeting service definition.
-service Greeter {
+service Api {
   // Sends a greeting
-  rpc SayHello (HelloRequest) returns (HelloReply) {}
+  rpc GetLocalTime (TimeRequest) returns (TimeResponse) {}
 }
 
 // The request message containing the user's name.
-message HelloRequest {
+message TimeRequest {
   string name = 1;
 }
 
 // The response message containing the greetings
-message HelloReply {
+message TimeResponse {
   string message = 1;
 }

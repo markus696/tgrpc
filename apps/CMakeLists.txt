@@ -1,0 +1,3 @@
+
+add_subdirectory(tgrpc_server)
+add_subdirectory(tgrpc_client)

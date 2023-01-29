@@ -1,9 +1,9 @@
 syntax = "proto3";
 
-package rpc_model.services;
+package rpc_model.echo;
 
 // The greeting service definition.
-service Echo {
+service Api {
   // Sends a greeting
   rpc DoEcho (EchoRequest) returns (EchoReply) {}
 }

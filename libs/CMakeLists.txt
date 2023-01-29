@@ -22,4 +22,4 @@ endif()
 ############ TD Library ###########
 ######################################
 
-#add_subdirectory(td)
+add_subdirectory(td)

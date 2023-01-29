@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package rpc_model.tg;
+
+// The greeting service definition.
+service Api {
+  // Sends a greeting
+  rpc GetLocalTime (TimeRequest) returns (TimeResponse) {}
+}
+
+// The request message containing the user's name.
+message TimeRequest {
+  string name = 1;
+}
+
+// The response message containing the greetings
+message TimeResponse {
+  string message = 1;
+}
