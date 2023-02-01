@@ -4,6 +4,7 @@
 #include <iostream>
 #include <memory>
 #include <string>
+#include <utility>
 
 #include <grpc++/grpc++.h>
 
@@ -15,12 +16,12 @@ namespace rpc_services::echo {
     using rpc_model::echo::EchoReply;
     using rpc_model::echo::Api;
 
-    class RpcService final : public Api::Service {
+    struct RpcService final : public Api::Service {
         grpc::Status DoEcho(grpc::ServerContext * context, const EchoRequest * request, EchoReply * reply) override {
             std::string msg(request->message());
 
             /* Logging */
-            std::cout << "[New Echo Request]: " << msg << std::endl;
+            std::cout << "[Echo Request]: " << msg << std::endl;
 
             reply->set_message(msg);
             return grpc::Status::OK;

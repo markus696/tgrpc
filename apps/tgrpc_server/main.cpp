@@ -1,31 +1,52 @@
 #include <iostream>
 #include <memory>
 #include <string>
+#include <thread>
+#include <stdio.h>
 
 #include <grpc++/grpc++.h>
 
 #include "rpc_services/echo/service.h"
+#include "rpc_services/tg/service.h"
 
-void RunServer() {
-    std::string server_address("0.0.0.0:50051");
-    rpc_services::echo::RpcService service;
-
-    grpc::ServerBuilder builder;
-    // Listen on the given address without any authentication mechanism.
-    builder.AddListeningPort(server_address, grpc::InsecureServerCredentials());
-    // Register "service" as the instance through which we'll communicate with clients.
-    // In this case it corresponds to an *synchronous* service.
-    builder.RegisterService(&service);
-    // Finally assemble the server.
-    std::unique_ptr<grpc::Server> server(builder.BuildAndStart());
-    std::cout << "Server listening on " << server_address << std::endl;
-
-    // Wait for the server to shutdown.
-    // Note that some other thread must be responsible for shutting down the server for this call to ever return.
-    server->Wait();
-}
+#include "telegram/handlers_cache.h"
+#include "telegram/response_reciver.h"
+#include "telegram/request_sender.h"
 
 int main(int argc, char ** argv) {
-    RunServer();
+    std::vector<std::thread> threads;
+
+    auto tgClientManager = std::make_shared<td::ClientManager>();
+    auto tgHandlersCache = std::make_shared<telegram::HandlersCache>();
+    auto tgResponseReceiver =
+            std::make_shared<telegram::ResponseReceiver>(tgClientManager, tgHandlersCache);
+    auto tgRequestSender =
+            std::make_shared<telegram::RequestSender>(tgClientManager, tgHandlersCache);
+
+    threads.emplace_back([tgResponseReceiver] {
+        td::ClientManager::execute(td::td_api::make_object<td::td_api::setLogVerbosityLevel>(1));
+        tgResponseReceiver->Loop();
+    });
+
+    threads.emplace_back([tgRequestSender] {
+        std::string server_address("0.0.0.0:50051");
+
+        grpc::ServerBuilder builder;
+        builder.AddListeningPort(server_address, grpc::InsecureServerCredentials());
+
+        auto tgService = std::make_shared<rpc_services::tg::RpcService>(tgRequestSender);
+        auto echoService = std::make_shared<rpc_services::echo::RpcService>();
+
+        builder.RegisterService(echoService.get());
+        builder.RegisterService(tgService.get());
+        // Finally assemble the server.
+        std::shared_ptr<grpc::Server> server(builder.BuildAndStart());
+        server->Wait();
+    });
+
+    for (auto& thread: threads) {
+        thread.join();
+    }
+
     return 0;
 }

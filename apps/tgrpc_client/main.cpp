@@ -4,30 +4,30 @@
 
 #include <grpc++/grpc++.h>
 
-#include "rpc_model/echo_service.pb.h"
-#include "rpc_model/echo_service.grpc.pb.h"
+#include "rpc_model/tg_service.pb.h"
+#include "rpc_model/tg_service.grpc.pb.h"
 
-namespace rpc::echo {
-    using rpc_model::echo::EchoRequest;
-    using rpc_model::echo::EchoReply;
-    using rpc_model::echo::Api;
+namespace rpc::tg {
+    using rpc_model::tg::OptionRequest;
+    using rpc_model::tg::Option;
+    using rpc_model::tg::Api;
 
     class Client {
     public:
         Client(std::shared_ptr<grpc::Channel> channel)
-        : stub_(rpc_model::echo::Api::NewStub(channel)) {}
+        : stub_(rpc_model::tg::Api::NewStub(channel)) {}
 
-        std::string Echo(const std::string& msg) {
-            EchoRequest request;
-            request.set_message(msg);
-            EchoReply reply;
+        void GetOption(const std::string& optionName) {
+            OptionRequest request;
+            request.set_name(optionName);
+            Option reply;
             grpc::ClientContext context;
 
-            grpc::Status status = stub_->DoEcho(&context, request, &reply);
+            grpc::Status status = stub_->GetOption(&context, request, &reply);
             if (status.ok()) {
-                return reply.message();
+                std::cout << "option readed" << std::endl;
             } else {
-                return 0;
+                return;
             }
         }
 
@@ -40,13 +40,10 @@ namespace rpc::echo {
 
 
 int main(int argc, char** argv) {
-  rpc::echo::Client client(
+  rpc::tg::Client client(
       grpc::CreateChannel("localhost:50051", grpc::InsecureChannelCredentials()));
-  std::string msg("tangro");
-  std::string reply = client.Echo(msg);
-
-  /* Logging */
-  std::cout << "[New Echo Reply]: " << reply << std::endl;
+  std::string optionName("version");
+  client.GetOption(optionName);
 
   return 0;
 }

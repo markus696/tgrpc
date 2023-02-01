@@ -1,3 +1,3 @@
-
+add_subdirectory(tdlib_example)
 add_subdirectory(tgrpc_server)
 add_subdirectory(tgrpc_client)

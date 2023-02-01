@@ -2,18 +2,22 @@ syntax = "proto3";
 
 package rpc_model.tg;
 
-// The greeting service definition.
 service Api {
-  // Sends a greeting
-  rpc GetLocalTime (TimeRequest) returns (TimeResponse) {}
+  rpc GetOption (OptionRequest) returns (Option) {}
 }
 
-// The request message containing the user's name.
-message TimeRequest {
+message OptionRequest {
   string name = 1;
 }
 
-// The response message containing the greetings
-message TimeResponse {
-  string message = 1;
+message OptionBoolean {
+  bool value = 1;
+}
+
+message Option {
+  oneof option {
+    bool bool_val = 2;
+    int64 int_val = 3;
+    string str_val = 4;
+  }
 }
