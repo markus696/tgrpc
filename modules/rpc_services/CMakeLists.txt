@@ -10,4 +10,5 @@ target_include_directories(${PROJECT_NAME} PUBLIC
         include)
 
 target_link_libraries(${PROJECT_NAME} PUBLIC
-        rpc_model telegram_module)
+        rpc_model telegram_module quill)
+

@@ -6,4 +6,4 @@ file(GLOB_RECURSE SRC_LIST LIST_DIRECTORIES false *.cpp)
 add_executable(${PROJECT_NAME} ${SRC_LIST})
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
-        rpc_services telegram_module)
+        rpc_services telegram_module quill)

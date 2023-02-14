@@ -9,6 +9,31 @@
 #include "handlers_cache.h"
 
 namespace telegram {
+    namespace detail {
+        template <class... Fs>
+        struct overload;
+
+        template <class F>
+        struct overload<F> : public F {
+            explicit overload(F f) : F(f) {
+            }
+        };
+        template <class F, class... Fs>
+        struct overload<F, Fs...>
+                : public overload<F>
+                        , public overload<Fs...> {
+            overload(F f, Fs... fs) : overload<F>(f), overload<Fs...>(fs...) {
+            }
+            using overload<F>::operator();
+            using overload<Fs...>::operator();
+        };
+    }
+
+    template <class... F>
+    auto overloaded(F... f) {
+        return detail::overload<F...>(f...);
+    }
+
     struct ResponseReceiver {
         static constexpr double WAIT_TIMEOUT = 10.0;
 
@@ -22,18 +47,25 @@ namespace telegram {
         {
             while (true) {
                 auto response = clientManager_->receive(WAIT_TIMEOUT);
-                if (response.object == nullptr) {
+                auto obj = std::move(response.object);
+                if (obj == nullptr) {
                     continue;
                 }
 
-                /* TODO: Logging */
-                std::cout
-                    << "Tg Received: ClientId=" << response.client_id
-                    << " RequestId=" << response.request_id << std::endl << std::endl;
+                LOG_INFO(quill::get_logger(),
+                         "Received(clientId={}, requestId={})", response.client_id, response.request_id);
+
+
+                auto on_error_handler = [](td::td_api::error& tgErr) {
+                    LOG_ERROR(quill::get_logger(),
+                              "TgError(code={}, message={})", tgErr.code_, tgErr.message_);
+                };
+
+                td::td_api::downcast_call(*obj, overloaded(on_error_handler, [](auto& obj) {}));
 
                 auto handler = handlersCache_->pop(
                         std::tie(response.client_id, response.request_id));
-                handler(std::move(response.object));
+                handler(std::move(obj));
             }
         }
 

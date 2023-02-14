@@ -5,6 +5,7 @@
 #include <stdio.h>
 
 #include <grpc++/grpc++.h>
+#include <quill/Quill.h>
 
 #include "rpc_services/echo/service.h"
 #include "rpc_services/tg/service.h"
@@ -15,6 +16,18 @@
 
 int main(int argc, char ** argv) {
     std::vector<std::thread> threads;
+
+    quill::Handler* handler = quill::stdout_handler(); /** for stdout **/
+    // quill::Handler* handler = quill::file_handler("quickstart.log", "w");  /** for writing to file **/
+    handler->set_pattern("%(ascii_time) [%(thread)] LOG_%(level_name) %(message)");
+
+    // set configuration
+    quill::Config cfg;
+    cfg.default_handlers.push_back(handler);
+
+    // Apply configuration and start the backend worker thread
+    quill::configure(cfg);
+    quill::start();
 
     auto tgClientManager = std::make_shared<td::ClientManager>();
     auto tgHandlersCache = std::make_shared<telegram::HandlersCache>();

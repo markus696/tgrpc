@@ -4,3 +4,6 @@
 [submodule "libs/grpc"]
 	path = libs/grpc
 	url = https://github.com/grpc/grpc.git
+[submodule "libs/quill"]
+	path = libs/quill
+	url = https://github.com/odygrd/quill.git

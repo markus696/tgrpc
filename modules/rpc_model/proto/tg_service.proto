@@ -2,22 +2,25 @@ syntax = "proto3";
 
 package rpc_model.tg;
 
+message Error {
+  string msg = 1;
+  int32 code = 2;
+}
+
 service Api {
-  rpc GetOption (OptionRequest) returns (Option) {}
+  rpc GetOption (OptionRequest) returns (OptionResponse) {}
 }
 
 message OptionRequest {
   string name = 1;
 }
 
-message OptionBoolean {
-  bool value = 1;
-}
-
-message Option {
+message OptionResponse {
+  Error error = 2;
   oneof option {
-    bool bool_val = 2;
-    int64 int_val = 3;
-    string str_val = 4;
+    bool bool_val = 5;
+    int64 int_val = 6;
+    string str_val = 7;
   }
 }
+

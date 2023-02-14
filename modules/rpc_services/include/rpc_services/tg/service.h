@@ -8,6 +8,7 @@
 #include <future>
 
 #include <grpc++/grpc++.h>
+#include <quill/Quill.h>
 
 #include "telegram/request_sender.h"
 #include "rpc_model/tg_service.pb.h"
@@ -15,7 +16,8 @@
 
 namespace rpc_services::tg {
     using rpc_model::tg::OptionRequest;
-    using rpc_model::tg::Option;
+    using rpc_model::tg::OptionResponse;
+    using rpc_model::tg::Error;
     using rpc_model::tg::Api;
 
     namespace detail {
@@ -49,10 +51,12 @@ namespace rpc_services::tg {
         explicit RpcService(std::shared_ptr<telegram::RequestSender> tgRequestSender) :
                 tgRequestSender_(std::move(tgRequestSender)) {}
 
-        grpc::Status GetOption(grpc::ServerContext * context, const  OptionRequest * request, Option * reply) override {
+        grpc::Status GetOption(grpc::ServerContext * context, const  OptionRequest * request, OptionResponse * reply) override {
             std::string optionName = request->name();
             auto tgRequestObj = td::td_api::make_object<td::td_api::getOption>(optionName);
 
+            /* ========================================== TODO =========================================== */
+            /* ========================================== TODO =========================================== */
             auto promPtr = std::make_shared<std::promise<void>>();
             auto future = promPtr->get_future();
 
@@ -67,12 +71,21 @@ namespace rpc_services::tg {
                         [reply](td::td_api::optionValueString& option) {
                             reply->set_str_val(option.value_);
                         },
+                        [reply](td::td_api::optionValueEmpty& option) {},
+                        [reply](td::td_api::error& tgErr) {
+                            Error* err = new Error();
+                            err->set_code(tgErr.code_);
+                            err->set_msg(tgErr.message_);
+                            reply->set_allocated_error(err);
+                        },
                         [](auto& obj) {}));
 
                 promPtr->set_value();
             });
 
             future.get();
+            /* ========================================== TODO =========================================== */
+            /* ========================================== TODO =========================================== */
 
             return grpc::Status::OK;
         }
